@@ -166,6 +166,7 @@ export const InstallationScenario = ({
                 {showEncryptedUnlock &&
                 (
                     <EncryptedDevices
+                      deviceData={devices}
                       dispatch={dispatch}
                       idPrefix={idPrefix}
                       lockedEncryptedDevices={lockedEncryptedDevices}

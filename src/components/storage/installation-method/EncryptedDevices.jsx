@@ -30,20 +30,20 @@ import { InlineNotification } from "cockpit-components-inline-notification.jsx";
 
 const _ = cockpit.gettext;
 
-const LockedDevices = ({ id, lockedEncryptedDevices }) => {
+const LockedDevices = ({ deviceData, id, lockedEncryptedDevices }) => {
     return (
         <Flex id={id} spaceItems={{ default: "spaceItemsLg" }}>
             {lockedEncryptedDevices.map(device => (
                 <Flex key={device} spaceItems={{ default: "spaceItemsXs" }} alignItems={{ default: "alignItemsCenter" }}>
                     <LockIcon />
-                    <FlexItem>{device}</FlexItem>
+                    <FlexItem>{deviceData[device]?.name.v}</FlexItem>
                 </Flex>
             ))}
         </Flex>
     );
 };
 
-export const EncryptedDevices = ({ dispatch, idPrefix, lockedEncryptedDevices }) => {
+export const EncryptedDevices = ({ deviceData, dispatch, idPrefix, lockedEncryptedDevices }) => {
     const [showUnlockDialog, setShowUnlockDialog] = useState(false);
     return (
         <>
@@ -65,6 +65,7 @@ export const EncryptedDevices = ({ dispatch, idPrefix, lockedEncryptedDevices })
             </Alert>
             {showUnlockDialog &&
             <UnlockDialog
+              deviceData={deviceData}
               dispatch={dispatch}
               onClose={() => setShowUnlockDialog(false)}
               lockedEncryptedDevices={lockedEncryptedDevices} />}
@@ -72,7 +73,7 @@ export const EncryptedDevices = ({ dispatch, idPrefix, lockedEncryptedDevices })
     );
 };
 
-const UnlockDialog = ({ dispatch, lockedEncryptedDevices, onClose }) => {
+const UnlockDialog = ({ deviceData, dispatch, lockedEncryptedDevices, onClose }) => {
     const [passphrase, setPassphrase] = useState("");
     const [passphraseHidden, setPassphraseHidden] = useState(true);
     const [dialogWarning, setDialogWarning] = useState();
@@ -101,7 +102,7 @@ const UnlockDialog = ({ dispatch, lockedEncryptedDevices, onClose }) => {
                     } else {
                         const unlockedDevs = res.reduce((acc, r, i) => {
                             if (r.value) {
-                                acc.push(lockedEncryptedDevices[i]);
+                                acc.push(deviceData[lockedEncryptedDevices[i]]?.name.v);
                             }
                             return acc;
                         }, []);
@@ -145,7 +146,7 @@ const UnlockDialog = ({ dispatch, lockedEncryptedDevices, onClose }) => {
                   }}>
                     {dialogSuccess && <InlineNotification type="info" text={dialogSuccess} />}
                     <FormGroup fieldId={idPrefix + "-locked-devices"} label={_("Locked devices")}>
-                        <LockedDevices id={idPrefix + "-locked-devices"} lockedEncryptedDevices={lockedEncryptedDevices} />
+                        <LockedDevices deviceData={deviceData} id={idPrefix + "-locked-devices"} lockedEncryptedDevices={lockedEncryptedDevices} />
                     </FormGroup>
                     <FormGroup fieldId={idPrefix + "-passphrase"} label={_("Passphrase")}>
                         <InputGroup>
